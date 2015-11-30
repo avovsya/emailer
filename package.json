@@ -11,7 +11,9 @@
     "debug": "~2.2.0",
     "express": "~4.13.1",
     "jade": "~1.11.0",
-    "morgan": "~1.6.1"
+    "mandrill-api": "^1.0.45",
+    "morgan": "~1.6.1",
+    "sendgrid": "^2.0.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",
