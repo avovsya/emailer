@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "node_modules/.bin/mocha ./test"
+    "test": "node_modules/.bin/mocha ./test/*.js ./test/**/*.js"
   },
   "dependencies": {
+    "async": "^1.5.0",
     "body-parser": "~1.13.2",
     "debug": "~2.2.0",
     "express": "~4.13.1",

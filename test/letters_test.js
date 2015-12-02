@@ -1,5 +1,5 @@
-var expect = require('chai').expect;
-var sinon = require('sinon');
+var expect  = require('chai').expect;
+var sinon   = require('sinon');
 
 var letters = require('../lib/letters');
 
@@ -18,8 +18,7 @@ describe('lib/letters', function () {
         html: '<a>HTML</a>',
         bcc: ['d@example.com'],
         cc: ['e@example.com'],
-        replyto: 'me@example.com',
-        headers: { test: 'header' }
+        replyto: 'me@example.com'
       };
 
       letters.validate(letter, function (err, val) {
@@ -33,23 +32,135 @@ describe('lib/letters', function () {
         toname: 'A A',
         from: 'example.com',
         fromname: 42,
-        subject: 'SUBJECT',
-        text: 'TEXT',
-        html: '<a>HTML</a>',
-        bcc: ['d@example.com'],
-        cc: ['e@example.com'],
-        replyto: 'me@example.com',
-        headers: { test: 'header' }
+        subject: 42,
+        text: 42,
+        html: 42,
+        bcc: 'd@example.com',
+        cc: 'e@example.com',
+        replyto: 'example.com'
       };
 
+
       letters.validate(letter, function (err, val) {
-        expect(err).to.equal(null);
+        expect(err).to.not.equal(null);
+        expect(err.name).to.equal('ValidationError');
+        expect(err.details.length).to.equal(10);
       });
     });
   });
 
   describe('send', function () {
+    beforeEach(function () {
+      sinon.stub(senders, 'get');
+    });
 
+    afterEach(function () {
+      senders.get.restore();
+    });
+
+    it('should send provided letter to the first available sender', function (done) {
+      var sender1 = {
+        name: 'sender1',
+        send: sinon.stub().yields()
+      };
+
+      var sender2 = {
+        name: 'sender1',
+        send: sinon.stub().yields()
+      };
+
+      senders.get.returns([sender1, sender2]);
+
+      var letter = {
+        to: 'a@example.com',
+        toname: 'A A',
+        from: 'example.com',
+        fromname: 42,
+        subject: 42,
+        text: 42,
+        html: 42,
+        bcc: 'd@example.com',
+        cc: 'e@example.com',
+        replyto: 'example.com'
+      };
+
+      letters.send(letter, function (err) {
+        expect(err).to.equal(null);
+        expect(sender1.send.calledOnce).to.equal(true);
+        expect(sender1.send.args[0][0]).to.deep.equal(letter);
+        expect(sender2.send.callCount).to.equal(0);
+        return done();
+      });
+    });
+
+    it('should send provided letter to the second available sender if first fails', function (done) {
+      var sender1 = {
+        name: 'sender1',
+        send: sinon.stub().yields('ERROR')
+      };
+
+      var sender2 = {
+        name: 'sender1',
+        send: sinon.stub().yields()
+      };
+
+      senders.get.returns([sender1, sender2]);
+
+      var letter = {
+        to: 'a@example.com',
+        toname: 'A A',
+        from: 'example.com',
+        fromname: 42,
+        subject: 42,
+        text: 42,
+        html: 42,
+        bcc: 'd@example.com',
+        cc: 'e@example.com',
+        replyto: 'example.com'
+      };
+
+      letters.send(letter, function (err) {
+        expect(err).to.equal(null);
+        expect(sender1.send.calledOnce).to.equal(true);
+        expect(sender1.send.args[0][0]).to.deep.equal(letter);
+        expect(sender2.send.calledOnce).to.equal(true);
+        expect(sender2.send.args[0][0]).to.deep.equal(letter);
+        return done();
+      });
+    });
+
+    it('should return error if all senders failed', function (done) {
+      var sender1 = {
+        name: 'sender1',
+        send: sinon.stub().yields('ERROR')
+      };
+
+      var sender2 = {
+        name: 'sender1',
+        send: sinon.stub().yields('ERROR')
+      };
+
+      senders.get.returns([sender1, sender2]);
+
+      var letter = {
+        to: 'a@example.com',
+        toname: 'A A',
+        from: 'example.com',
+        fromname: 42,
+        subject: 42,
+        text: 42,
+        html: 42,
+        bcc: 'd@example.com',
+        cc: 'e@example.com',
+        replyto: 'example.com'
+      };
+
+      letters.send(letter, function (err) {
+        expect(sender1.send.calledOnce).to.equal(true);
+        expect(sender2.send.calledOnce).to.equal(true);
+        expect(err.message).to.equal('No senders left');
+        return done();
+      });
+    });
   });
-
 });
