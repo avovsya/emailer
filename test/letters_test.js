@@ -16,8 +16,6 @@ describe('lib/letters', function () {
         subject: 'SUBJECT',
         text: 'TEXT',
         html: '<a>HTML</a>',
-        bcc: ['d@example.com'],
-        cc: ['e@example.com'],
         replyto: 'me@example.com'
       };
 
