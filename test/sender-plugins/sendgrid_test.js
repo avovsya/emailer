@@ -1,6 +1,6 @@
 var expect      = require('chai').expect;
 var sinon       = require('sinon');
-var proxyquire  = require('proxyquire');
+var proxyquire  = require('proxyquire').noPreserveCache();
 
 var sendgridApi = sinon.stub();
 var sendgrid    = proxyquire('../../lib/sender-plugins/sendgrid', { sendgrid: sendgridApi });
