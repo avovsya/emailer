@@ -4,16 +4,14 @@ var proxyquire  = require('proxyquire').noPreserveCache();
 
 var sendgridApi = sinon.stub();
 var sendgrid    = proxyquire('../../lib/sender-plugins/sendgrid', { sendgrid: sendgridApi });
+var config      = require('config');
 
 describe('sender-plugins/sendgrid send', function () {
   var oldSendgridUserEnv, oldSendgridPasswordEnv;
   var sendgridClientStub = { Email: function () {} };
 
   beforeEach(function () {
-    oldSendgridUserEnv = process.env.SENDGRID_USER;
-    oldSendgridPasswordEnv = process.env.SENDGRID_PASSWORD;
-    process.env.SENDGRID_USER = 'USER';
-    process.env.SENDGRID_PASSWORD = 'PASSWORD';
+    sinon.stub(config, 'get').withArgs('sendgridApiKey').returns('SENDGRIDKEY');
 
     sinon.stub(sendgridClientStub, 'Email', function () {
       this.email = 'EMAIL';
@@ -23,16 +21,14 @@ describe('sender-plugins/sendgrid send', function () {
   });
 
   afterEach(function () {
-    process.env.SENDGRID_USER = oldSendgridUserEnv;
-    process.env.SENDGRID_PASSWORD = oldSendgridPasswordEnv;
+    config.get.restore();
     sendgridClientStub.Email.restore();
   });
 
   it('should call sendgrid constructor with correct API credentials', function () {
     sendgrid.init();
     expect(sendgridApi.callCount).to.equal(1);
-    expect(sendgridApi.args[0][0]).to.equal('USER');
-    expect(sendgridApi.args[0][1]).to.equal('PASSWORD');
+    expect(sendgridApi.args[0][0]).to.equal('SENDGRIDKEY');
   });
 
   it('should call sendgrid.send with correct arguments sendgrid Email object', function (done) {

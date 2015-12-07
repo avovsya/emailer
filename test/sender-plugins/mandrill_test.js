@@ -2,6 +2,7 @@ var expect      = require('chai').expect;
 var sinon       = require('sinon');
 
 var mandrill    = require('../../lib/sender-plugins/mandrill');
+var config      = require('config');
 
 var mandrillApi = require('mandrill-api/mandrill');
 
@@ -11,7 +12,7 @@ describe('sender-plugins/mandrill send', function () {
 
   beforeEach(function () {
     oldMandrillKey = process.env.MANDRILL_API_KEY;
-    process.env.MANDRILL_API_KEY = 'MANDRILLKEY';
+    sinon.stub(config, 'get').withArgs('mandrillApiKey').returns('MANDRILLKEY');
 
     mandrillMessages.send = sinon.stub();
 
@@ -21,7 +22,7 @@ describe('sender-plugins/mandrill send', function () {
   });
 
   afterEach(function () {
-    process.env.MANDRILL_API_KEY = oldMandrillKey;
+    config.get.restore();
     mandrillApi.Mandrill.restore();
   });
 

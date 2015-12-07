@@ -1,0 +1,5 @@
+{
+  "mandrillApiKey": "<API_KEY>",
+  "sendgridApiKey": "<API_KEY>",
+  "mongoConnectionString": "<CONNECTION_URI>"
+}
