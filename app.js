@@ -3,7 +3,8 @@ var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
+var router = express.Router();
+var lettersHandler = require('routes/letters');
 
 var app = express();
 
@@ -11,7 +12,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+router.post('/letters', lettersHandler.create);
+
+app.use('/api/1/', router);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
