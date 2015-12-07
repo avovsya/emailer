@@ -49,9 +49,8 @@ describe('db', function () {
     it('should search collection for letter ID and return result', function (done) {
       collectionStub.findOne.yields(null, 'LETTER');
       db.getLetter('ID', function (err, letter) {
-        expect(connectionStub.collection.callCount).to.equal(1);
+        expect(letter, 'LETTER')
         expect(connectionStub.collection.args[0][0]).to.equal('letters');
-        expect(collectionStub.findOne.callCount).to.equal(1);
         expect(collectionStub.findOne.args[0][0]).to.deep.equal({ _id: {val: 'ID'} });
         return done();
       });

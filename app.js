@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 router.post('/letters', lettersHandler.create);
+router.post('/letters/:id/send', lettersHandler.send);
 
 app.use('/api/1/', router);
 
