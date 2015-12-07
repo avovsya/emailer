@@ -1,16 +1,17 @@
-var expect = require('chai').expect;
-var sinon = require('sinon');
+var expect     = require('chai').expect;
+var sinon      = require('sinon');
+var proxyquire = require('proxyquire').noPreserveCache();
 
-var db = require('../lib/db');
-var mongodb = require('mongodb');
+var mongodb    = {};
+var db         = proxyquire('../../lib/db', { mongodb: mongodb });
+var config     = require('config');
 
 describe('db', function () {
-  var oldMongoClient, oldObjectIdConstructor;
   var connectionStub = {};
   var collectionStub = {};
 
   beforeEach(function () {
-    oldMongoClient = mongodb.MongoClient;
+    sinon.stub(config, 'get').withArgs('mongoConnectionString').returns('MONGOCONNSTRING');
 
     collectionStub.findOne = sinon.stub().yields();
     collectionStub.insert = sinon.stub().yields();
@@ -25,13 +26,12 @@ describe('db', function () {
   });
 
   afterEach(function () {
-    mongodb.MongoClient = oldMongoClient;
-    mongodb.ObjectId = oldObjectIdConstructor;
+    config.get.restore();
   });
 
   describe('getLetter', function () {
     it('should establish connection to database and return error if it occured', function (done) {
-      mongodb.MongoClient.connect.yields('ERROR')
+      mongodb.MongoClient.connect.yields('ERROR');
       db.getLetter('ID', function (err, letter) {
         expect(err).to.equal('ERROR');
         return done();
@@ -49,7 +49,7 @@ describe('db', function () {
     it('should search collection for letter ID and return result', function (done) {
       collectionStub.findOne.yields(null, 'LETTER');
       db.getLetter('ID', function (err, letter) {
-        expect(letter, 'LETTER')
+        expect(letter, 'LETTER');
         expect(connectionStub.collection.args[0][0]).to.equal('letters');
         expect(collectionStub.findOne.args[0][0]).to.deep.equal({ _id: {val: 'ID'} });
         return done();

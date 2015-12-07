@@ -1,5 +1,5 @@
 var request = require('supertest');
-var app = require('../app');
+var app = require('../../app');
 
 describe('app', function () {
   describe('POST /api/1/letters', function () {
@@ -15,12 +15,10 @@ describe('app', function () {
         replyto: 'me@example.com'
       };
 
-      // request(app)
-      //   .post('/api/1/letters')
-      //   .send(letter)
-      return done();
-
-
+      request(app)
+        .post('/api/1/letters')
+        .send(letter)
+        .expect(200, { id: 'ID' }, done);
     });
 
     it('should respond with JSON validation error if provided letter is not valid', function (done) {

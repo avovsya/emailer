@@ -1,8 +1,8 @@
 var expect  = require('chai').expect;
 var sinon   = require('sinon');
 
-var letters = require('../routes/letters');
-var lettersLib = require('../lib/letters');
+var letters = require('../../routes/letters');
+var lettersLib = require('../../lib/letters');
 
 describe('routes/letters', function () {
   var req, res;

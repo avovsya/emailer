@@ -9,7 +9,6 @@ Then start application with `npm start`
 
 ## Running tests
 Provide configuration in config/test.json
-Set NODE_ENV environment variable to 'test'
 Install dependencies with `npm install`
 Run `npm test` in a project root directory
 

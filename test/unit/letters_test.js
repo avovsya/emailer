@@ -1,10 +1,11 @@
 var expect  = require('chai').expect;
 var sinon   = require('sinon');
+// var proxyquire = require('proxyquire').preserveCache();
 
-var letters = require('../lib/letters');
+var letters = require('../../lib/letters');
 
-var senders = require('../lib/senders');
-var db      = require('../lib/db');
+var senders = require('../../lib/senders');
+var db      = require('../../lib/db');
 
 describe('lib/letters', function () {
   describe('validate', function () {
@@ -52,11 +53,13 @@ describe('lib/letters', function () {
     beforeEach(function () {
       sinon.stub(senders, 'get');
       sinon.stub(db, 'getLetter');
+      sinon.stub(db, 'createLetter');
     });
 
     afterEach(function () {
       senders.get.restore();
       db.getLetter.restore();
+      db.createLetter.restore();
     });
 
     it('should send provided letter to the first available sender and return sender name', function (done) {
@@ -171,10 +174,12 @@ describe('lib/letters', function () {
   describe('create', function () {
     beforeEach(function () {
       sinon.stub(db, 'createLetter');
+      sinon.stub(db, 'getLetter');
     });
 
     afterEach(function () {
       db.createLetter.restore();
+      db.getLetter.restore();
     });
 
     it('should fail for incorrect format', function(done) {

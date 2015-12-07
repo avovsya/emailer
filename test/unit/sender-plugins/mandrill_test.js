@@ -1,7 +1,7 @@
 var expect      = require('chai').expect;
 var sinon       = require('sinon');
 
-var mandrill    = require('../../lib/sender-plugins/mandrill');
+var mandrill    = require('../../../lib/sender-plugins/mandrill');
 var config      = require('config');
 
 var mandrillApi = require('mandrill-api/mandrill');

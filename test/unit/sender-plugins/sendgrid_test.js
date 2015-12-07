@@ -3,7 +3,7 @@ var sinon       = require('sinon');
 var proxyquire  = require('proxyquire').noPreserveCache();
 
 var sendgridApi = sinon.stub();
-var sendgrid    = proxyquire('../../lib/sender-plugins/sendgrid', { sendgrid: sendgridApi });
+var sendgrid    = proxyquire('../../../lib/sender-plugins/sendgrid', { sendgrid: sendgridApi });
 var config      = require('config');
 
 describe('sender-plugins/sendgrid send', function () {

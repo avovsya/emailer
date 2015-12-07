@@ -4,3 +4,4 @@ npm-debug.log
 .env
 config/test.json
 config/production.json
+.DS_Store
