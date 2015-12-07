@@ -48,16 +48,16 @@ describe('routes/letters', function () {
   });
 
   describe('send', function () {
-    it('should send letter id and return success result', function () {
+    it('should send letter id and return success result and sender name', function () {
       req.params = {id: 'LETTER'};
-      lettersLib.send.yields(null);
+      lettersLib.send.yields(null, 'senderName');
 
       letters.send(req, res);
 
       expect(lettersLib.send.callCount).to.equal(1);
       expect(lettersLib.send.args[0][0]).to.equal('LETTER');
       expect(res.json.callCount).to.equal(1);
-      expect(res.json.args[0][0]).to.deep.equal({success: true});
+      expect(res.json.args[0][0]).to.deep.equal({success: true, sender: 'senderName'});
     });
 
     it('should send letter id and return error result', function () {

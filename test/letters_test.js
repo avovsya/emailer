@@ -59,14 +59,14 @@ describe('lib/letters', function () {
       db.getLetter.restore();
     });
 
-    it('should send provided letter to the first available sender', function (done) {
+    it('should send provided letter to the first available sender and return sender name', function (done) {
       var sender1 = {
         name: 'sender1',
         send: sinon.stub().yields()
       };
 
       var sender2 = {
-        name: 'sender1',
+        name: 'sender2',
         send: sinon.stub().yields()
       };
 
@@ -84,13 +84,14 @@ describe('lib/letters', function () {
       senders.get.returns([sender1, sender2]);
       db.getLetter.yields(null, letter);
 
-      letters.send('LETTERID', function (err) {
+      letters.send('LETTERID', function (err, senderName) {
         expect(err).to.equal(null);
         expect(db.getLetter.callCount).to.equal(1);
         expect(db.getLetter.args[0][0]).to.equal('LETTERID');
         expect(sender1.send.calledOnce).to.equal(true);
         expect(sender1.send.args[0][0]).to.deep.equal(letter);
         expect(sender2.send.callCount).to.equal(0);
+        expect(senderName).to.equal('sender1');
         return done();
       });
     });
@@ -102,7 +103,7 @@ describe('lib/letters', function () {
       };
 
       var sender2 = {
-        name: 'sender1',
+        name: 'sender2',
         send: sinon.stub().yields()
       };
 
@@ -120,7 +121,7 @@ describe('lib/letters', function () {
       senders.get.returns([sender1, sender2]);
       db.getLetter.yields(null, letter);
 
-      letters.send('LETTERID', function (err) {
+      letters.send('LETTERID', function (err, senderName) {
         expect(err).to.equal(null);
         expect(db.getLetter.callCount).to.equal(1);
         expect(db.getLetter.args[0][0]).to.equal('LETTERID');
@@ -128,6 +129,7 @@ describe('lib/letters', function () {
         expect(sender1.send.args[0][0]).to.deep.equal(letter);
         expect(sender2.send.calledOnce).to.equal(true);
         expect(sender2.send.args[0][0]).to.deep.equal(letter);
+        expect(senderName).to.equal('sender2');
         return done();
       });
     });

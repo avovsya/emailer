@@ -8,9 +8,9 @@ function create(req, res) {
 }
 
 function send(req, res) {
-  letters.send(req.params.id, function (err) {
+  letters.send(req.params.id, function (err, senderName) {
     if (err) return res.json({success: false, error: err});
-    return res.json({success: true});
+    return res.json({success: true, sender: senderName});
   });
 }
 
