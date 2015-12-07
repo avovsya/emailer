@@ -4,7 +4,7 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 
 var router = express.Router();
-var lettersHandler = require('routes/letters');
+var lettersHandler = require('./routes/letters');
 
 var app = express();
 
