@@ -153,11 +153,61 @@ describe('db', function () {
       db.saveFile('CONTENT', function (err, id) {
         expect(gridStoreOpen.callCount).to.equal(1);
         expect(gridStoreWrite.callCount).to.equal(1);
-        expect(gridStoreClose.callCount).to.equal(1);
         expect(err).to.equal('ERRORCLOSE');
         return done();
       });
     });
 
+  });
+
+  describe('getFile', function () {
+    it('should create new GridStore passing the new Id for the file', function (done) {
+      gridStoreOpen.yields();
+      gridStoreSeek.yields();
+      gridStoreRead.yields(null, new Buffer('test'));
+      db.getFile('ID', function (err, id) {
+        expect(mongodb.GridStore.callCount).to.equal(1);
+        expect(mongodb.GridStore.args[0][0]).to.deep.equal(connectionStub);
+        expect(mongodb.GridStore.args[0][1]).to.deep.equal('ID');
+        expect(mongodb.GridStore.args[0][2]).to.equal('r');
+        return done();
+      });
+    });
+
+    it('should return file content if successfully saved', function (done) {
+      gridStoreOpen.yields();
+      gridStoreSeek.yields();
+      gridStoreRead.yields(null, new Buffer('CONTENT'));
+      db.getFile('ID', function (err, content) {
+        expect(content).to.deep.equal('CONTENT');
+        return done();
+      });
+    });
+
+    it('should return error if error occured when GridStore.open', function (done) {
+      gridStoreOpen.yields('ERROROPEN');
+      gridStoreSeek.yields();
+      gridStoreRead.yields();
+      db.getFile('ID', function (err, id) {
+        expect(gridStoreOpen.callCount).to.equal(1);
+        expect(gridStoreSeek.callCount).to.equal(0);
+        expect(gridStoreRead.callCount).to.equal(0);
+        expect(err).to.equal('ERROROPEN');
+        return done();
+      });
+    });
+
+    it('should return error if error occured when GridStore.read', function (done) {
+      gridStoreOpen.yields();
+      gridStoreSeek.yields();
+      gridStoreRead.yields('ERRORREAD');
+      db.getFile('ID', function (err, id) {
+        expect(gridStoreOpen.callCount).to.equal(1);
+        expect(gridStoreSeek.callCount).to.equal(1);
+        expect(gridStoreRead.callCount).to.equal(1);
+        expect(err).to.equal('ERRORREAD');
+        return done();
+      });
+    });
   });
 });
