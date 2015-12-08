@@ -16,7 +16,7 @@ paths:
     post:
       tags:
       - "Letters"
-      summary: "Creates new letter"
+      summary: "Create new letter"
       description: "Creates new letter and returns it's ID. Letter is created but\
         \ not sent\n"
       parameters:
@@ -39,11 +39,43 @@ paths:
           description: "Unexpected error"
           schema:
             $ref: "#/definitions/Error"
+  /letters/{id}:
+    put:
+      tags:
+      - "Letters"
+      summary: "Add attachment to an existing letter"
+      description: "Accepts Letter ID and file and attaches file to the letter"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Existing Letter ID"
+        required: true
+        type: "string"
+      - name: "file"
+        in: "formData"
+        description: "File attachment"
+        required: true
+        type: "file"
+      responses:
+        200:
+          description: "Object with status"
+          schema:
+            $ref: "#/definitions/inline_response_200"
+        404:
+          description: "Letter ID not found"
+        403:
+          description: "File not included"
+        503:
+          description: "Error occured. Try later"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
   /letters/{id}/send:
     post:
       tags:
       - "Letters"
-      summary: "Sends existing letter"
+      summary: "Send existing letter"
       description: "Accepts Letter ID and sends it using a first available email service\n"
       parameters:
       - name: "id"

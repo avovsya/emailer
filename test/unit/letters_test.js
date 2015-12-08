@@ -262,7 +262,7 @@ describe('lib/letters', function () {
 
     it('should save attachment to DB', function(done) {
       db.saveFile.yields(null, 'ATTACHID');
-      db.addLetterAttachmentId.yields(null, 1);
+      db.addLetterAttachmentId.yields(null, {result: {nModified: 1}});
 
       letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
         expect(err).to.equal(undefined);
@@ -274,7 +274,7 @@ describe('lib/letters', function () {
 
     it('should return error if saving file fails', function(done) {
       db.saveFile.yields('ERRORSAVE');
-      db.addLetterAttachmentId.yields(null, 1);
+      db.addLetterAttachmentId.yields(null, {result: {nModified: 1}});
 
       letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
         expect(err).to.equal('ERRORSAVE');
@@ -286,7 +286,7 @@ describe('lib/letters', function () {
 
     it('should add attachment id to letter', function(done) {
       db.saveFile.yields(null, 'ATTACHID');
-      db.addLetterAttachmentId.yields(null, 1);
+      db.addLetterAttachmentId.yields(null, {result: {nModified: 1}});
 
       letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
         expect(err).to.equal(undefined);
@@ -310,7 +310,7 @@ describe('lib/letters', function () {
 
     it('should return Not Found error if number of updated letters equals 0', function(done) {
       db.saveFile.yields(null, 'ATTACHID');
-      db.addLetterAttachmentId.yields(null, 0);
+      db.addLetterAttachmentId.yields(null, {result: {nModified: 0}});
 
       letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
         expect(err.message).to.equal('Not Found');

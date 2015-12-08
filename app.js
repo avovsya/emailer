@@ -1,12 +1,14 @@
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-var bodyParser = require('body-parser');
+var express        = require('express');
+var path           = require('path');
+var logger         = require('morgan');
+var bodyParser     = require('body-parser');
+var multer         = require('multer');
+var upload         = multer({ storage: multer.memoryStorage() }); // NOT IN PRODUCTION!
 
-var router = express.Router();
+var router         = express.Router();
 var lettersHandler = require('./routes/letters');
 
-var app = express();
+var app            = express();
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -15,6 +17,7 @@ app.use('/swagger', express.static(path.join(__dirname, 'swagger')));
 
 router.post('/letters', lettersHandler.create);
 router.post('/letters/:id/send', lettersHandler.send);
+router.put('/letters/:id', upload.single('file'), lettersHandler.addAttachment);
 
 app.use('/api/1/', router);
 
@@ -33,6 +36,7 @@ if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.send({
+      success: false,
       message: err.message,
       error: err
     });
@@ -44,6 +48,7 @@ if (app.get('env') === 'development') {
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.send({
+    success: false,
     message: err.message,
     error: err
   });
