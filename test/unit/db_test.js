@@ -71,7 +71,7 @@ describe('db', function () {
     });
 
     it('should insert letter to collection and return letter id', function (done) {
-      collectionStub.insert.yields(null, [{_id: 'RESULTID'}]);
+      collectionStub.insert.yields(null, {ops:[{_id: 'RESULTID'}]});
       db.createLetter('LETTER', function (err, letter) {
         expect(collectionStub.insert.callCount).to.equal(1);
         expect(collectionStub.insert.args[0][0]).to.equal('LETTER');

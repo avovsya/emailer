@@ -10,7 +10,9 @@ Then start application with `npm start`
 ## Running tests
 Provide configuration in config/test.json
 Install dependencies with `npm install`
-Run `npm test` in a project root directory
+Unit tests: `npm run test-unit`
+Smoke API tests: `npm run test-smoke`
+All tests: `npm test`
 
 ## Configuration
 Configuration is stored in config/ folder using .json files.
