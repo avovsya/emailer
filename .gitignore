@@ -3,4 +3,6 @@ node_modules/*
 npm-debug.log
 .env
 config/test.json
+config/production.json
+config/development.json
 .DS_Store
