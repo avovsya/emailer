@@ -10,7 +10,8 @@ var app = express();
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
+app.use('/swagger', express.static(path.join(__dirname, 'swagger')));
 
 router.post('/letters', lettersHandler.create);
 router.post('/letters/:id/send', lettersHandler.send);

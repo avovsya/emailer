@@ -1,6 +1,12 @@
 # Emailer
 Simple send email service
 
+## Documentation
+API documentation is done using swagger.io
+API docs can be found in [http://emailer-challenge.herokuapp.com/swagger/index.html](http://emailer-challenge.herokuapp.com/swagger/index.html)
+
+If running locally docs can be found in [http://localhost:{PORT}/swagger/index.html](http://localhost:3000/swagger/index.html) 
+
 ## Running locally
 Install dependencies with `npm install`
 Provide configuration in config/development.json

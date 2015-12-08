@@ -1,0 +1,129 @@
+---
+swagger: "2.0"
+info:
+  description: "Middleware service for sending emails using multiple transactional\
+    \ email services"
+  version: "1.0.0"
+  title: "Emailer API"
+host: "emailer-challenge.herokuapp.com"
+basePath: "/api/1"
+schemes:
+- "http"
+produces:
+- "application/json"
+paths:
+  /letters:
+    post:
+      tags:
+      - "Letters"
+      summary: "Creates new letter"
+      description: "Creates new letter and returns it's ID. Letter is created but\
+        \ not sent\n"
+      parameters:
+      - in: "body"
+        name: "letter"
+        description: "Letter object"
+        required: true
+        schema:
+          $ref: "#/definitions/Letter"
+      responses:
+        200:
+          description: "ID of the letter"
+          schema:
+            $ref: "#/definitions/inline_response_200"
+        400:
+          description: "Validation Error"
+          schema:
+            $ref: "#/definitions/inline_response_400"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+  /letters/{id}/send:
+    post:
+      tags:
+      - "Letters"
+      summary: "Sends existing letter"
+      description: "Accepts Letter ID and send it with first available Email service\n"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Existing Letter ID"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Object with status and name of the sender service that was\
+            \ used to send letter"
+          schema:
+            $ref: "#/definitions/inline_response_200_1"
+        404:
+          description: "Letter ID not found"
+        503:
+          description: "No senders accepted the send request"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+definitions:
+  Letter:
+    type: "object"
+    required:
+    - "from"
+    - "to"
+    properties:
+      to:
+        type: "array"
+        description: "Array of the recipients email addresses"
+        items:
+          type: "string"
+      toname:
+        type: "array"
+        description: "Array of the recipients names"
+        items:
+          type: "string"
+      from:
+        type: "string"
+        description: "Sender email address"
+      fromname:
+        type: "string"
+        description: "Sender name"
+      subject:
+        type: "string"
+        description: "Letter subject"
+      text:
+        type: "string"
+        description: "Letter text"
+      html:
+        type: "string"
+        description: "Letter html"
+      replyto:
+        type: "string"
+        description: "Reply-To email header"
+  Error:
+    type: "object"
+    properties:
+      error:
+        type: "object"
+        properties: {}
+      message:
+        type: "string"
+  inline_response_200:
+    properties:
+      id:
+        type: "string"
+        description: "Letter ID"
+  inline_response_400:
+    properties:
+      error:
+        type: "object"
+        description: "Validation error description"
+        properties: {}
+  inline_response_200_1:
+    properties:
+      sender:
+        type: "string"
+        description: "Name of the sender that was used to send letter"
+      success:
+        type: "boolean"
+        description: "Status of the send request"
