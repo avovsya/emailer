@@ -114,7 +114,7 @@ describe('app', function () {
 
     before(function (done) {
       var letter = {
-        to: ['attachment@example.com'],
+        to: ['artem.nomad@gmail.com'],
         toname: ['ATTACHMENT'],
         from: 'attacher@example.com',
         fromname: 'ATTACHER',
@@ -164,13 +164,13 @@ describe('app', function () {
         .expect(400, done);
     });
 
-    xit('POST /letters/{id}/send should successfully send file with attachment', function (done) {
-      // request(app)
-      //   .post('/api/1/letters/NOT-EXISTS/send')
-      //   .expect(function (res) {
-      //     expect(res.body.success).to.equal(false);
-      //   })
-      //   .expect(404, done);
+    it('POST /letters/{id}/send should successfully send file with attachment', function (done) {
+      request(app)
+        .post('/api/1/letters/' + letterId + '/send')
+        .expect(function (res) {
+          expect(res.body.success).to.equal(true);
+        })
+        .expect(200, done);
     });
   });
 });

@@ -33,6 +33,8 @@ describe('sender-plugins/sendgrid send', function () {
 
   it('should call sendgrid.send with correct arguments sendgrid Email object', function (done) {
     sendgridClientStub.send = sinon.stub().yields(undefined, 'RESULT');
+    var content1 = new Buffer('CONTENT');
+    var content2 = new Buffer('CONTENT2');
     var letter = {
       to: ['a@example.com', 'b@example.com'],
       toname: ['A A', 'B B'],
@@ -41,13 +43,38 @@ describe('sender-plugins/sendgrid send', function () {
       subject: 'SUBJECT',
       text: 'TEXT',
       html: '<a>HTML</a>',
-      replyto: 'me@example.com'
+      replyto: 'me@example.com',
+      attachments: [{
+        name: 'ATTACH1',
+        content: content1
+      }, {
+        name: 'ATTACH2',
+        content: content2
+      }]
+    };
+
+    var expectedLetter = {
+      to: ['a@example.com', 'b@example.com'],
+      toname: ['A A', 'B B'],
+      from: 'c@example.com',
+      fromname: 'C C',
+      subject: 'SUBJECT',
+      text: 'TEXT',
+      html: '<a>HTML</a>',
+      replyto: 'me@example.com',
+      files: [{
+        filename: 'ATTACH1',
+        content: content1
+      }, {
+        filename: 'ATTACH2',
+        content: content2
+      }]
     };
 
     sendgrid.send(letter, function (err) {
       expect(err).to.equal(undefined);
       expect(sendgridClientStub.Email.callCount).to.equal(1);
-      expect(sendgridClientStub.Email.args[0][0]).to.deep.equal(letter);
+      expect(sendgridClientStub.Email.args[0][0]).to.deep.equal(expectedLetter);
       expect(sendgridClientStub.send.callCount).to.equal(1);
       expect(sendgridClientStub.send.args[0][0]).to.deep.equal({ email: 'EMAIL' });
       return done();

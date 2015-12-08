@@ -42,7 +42,14 @@ describe('sender-plugins/mandrill send', function () {
       subject: 'SUBJECT',
       text: 'TEXT',
       html: '<a>HTML</a>',
-      replyto: 'me@example.com'
+      replyto: 'me@example.com',
+      attachments: [{
+        name: 'ATTACH1',
+        content: new Buffer('CONTENT')
+      }, {
+        name: 'ATTACH2',
+        content: new Buffer('CONTENT2')
+      }]
     };
 
     var expectedMessage = {
@@ -62,7 +69,14 @@ describe('sender-plugins/mandrill send', function () {
       }],
       headers: {
         "Reply-To": "me@example.com"
-      }
+      },
+      attachments: [{
+        name: 'ATTACH1',
+        content: 'Q09OVEVOVA=='
+      }, {
+        name: 'ATTACH2',
+        content: 'Q09OVEVOVDI='
+      }]
     };
 
     mandrill.send(letter, function (err) {

@@ -196,12 +196,12 @@ describe('db', function () {
       });
     });
 
-    it('should return file content if successfully saved', function (done) {
+    it('should return file content as buffer if successfully saved', function (done) {
       gridStoreOpen.yields();
       gridStoreSeek.yields();
       gridStoreRead.yields(null, new Buffer('CONTENT'));
       db.getFile('ID', function (err, content) {
-        expect(content).to.deep.equal('CONTENT');
+        expect(content.toString('utf8')).to.deep.equal('CONTENT');
         return done();
       });
     });

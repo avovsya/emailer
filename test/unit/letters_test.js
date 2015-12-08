@@ -170,7 +170,13 @@ describe('lib/letters', function () {
         expect(db.getFile.args[0][0]).to.equal('ATTACHID1');
         expect(db.getFile.args[1][0]).to.equal('ATTACHID2');
 
-        expect(sender1.send.args[0][0].attachments).to.deep.equal(['ATTACHMENT1', 'ATTACHMENT2']);
+        expect(sender1.send.args[0][0].attachments).to.deep.equal([{
+          name: 'ATTACHID1',
+          content: 'ATTACHMENT1'
+        }, {
+          name: 'ATTACHID2',
+          content: 'ATTACHMENT2'
+        }]);
         return done();
       });
     });
