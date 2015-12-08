@@ -44,7 +44,7 @@ paths:
       tags:
       - "Letters"
       summary: "Sends existing letter"
-      description: "Accepts Letter ID and send it with first available Email service\n"
+      description: "Accepts Letter ID and sends it using a first available email service\n"
       parameters:
       - name: "id"
         in: "path"
@@ -74,32 +74,35 @@ definitions:
     properties:
       to:
         type: "array"
-        description: "Array of the recipients email addresses"
+        description: "Array of the recipient email addresses"
         items:
           type: "string"
+          format: "email"
       toname:
         type: "array"
-        description: "Array of the recipients names"
+        description: "Array of the recipient names"
         items:
           type: "string"
       from:
-        type: "string"
         description: "Sender email address"
+        type: "string"
+        format: "email"
       fromname:
-        type: "string"
         description: "Sender name"
+        type: "string"
       subject:
-        type: "string"
         description: "Letter subject"
+        type: "string"
       text:
-        type: "string"
         description: "Letter text"
+        type: "string"
       html:
-        type: "string"
         description: "Letter html"
-      replyto:
         type: "string"
+      replyto:
         description: "Reply-To email header"
+        type: "string"
+        format: "email"
   Error:
     type: "object"
     properties:
