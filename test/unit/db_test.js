@@ -18,6 +18,7 @@ describe('db', function () {
 
     collectionStub.findOne = sinon.stub().yields();
     collectionStub.insert = sinon.stub().yields();
+    collectionStub.update = sinon.stub().yields();
 
     gridStoreOpen = sinon.stub();
     gridStoreWrite = sinon.stub();
@@ -94,6 +95,27 @@ describe('db', function () {
         expect(collectionStub.insert.callCount).to.equal(1);
         expect(collectionStub.insert.args[0][0]).to.equal('LETTER');
         expect(letter).to.equal('RESULTID');
+        return done();
+      });
+    });
+  });
+
+  describe('addLetterAttachmentId', function () {
+    it('should return error if it occured', function (done) {
+      collectionStub.update.yields('ERROR');
+      db.addLetterAttachmentId('LETTERID', 'ATTACHID', function (err, modifiedRecordsCount) {
+        expect(err).to.equal('ERROR');
+        return done();
+      });
+    });
+
+    it('should update letter attachment list', function (done) {
+      collectionStub.update.yields(null, 42);
+      db.addLetterAttachmentId('LETTERID', 'ATTACHID', function (err, modifiedRecordsCount) {
+        expect(collectionStub.update.callCount).to.equal(1);
+        expect(collectionStub.update.args[0][0]).to.deep.equal({ _id: {val: 'LETTERID'} });
+        expect(collectionStub.update.args[0][1]).to.deep.equal({ $push: {attachments: 'ATTACHID'} });
+        expect(modifiedRecordsCount).to.equal(42);
         return done();
       });
     });
