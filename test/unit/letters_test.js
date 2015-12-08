@@ -248,4 +248,74 @@ describe('lib/letters', function () {
       });
     });
   });
+
+  describe('addAttachment', function () {
+    beforeEach(function () {
+      sinon.stub(db, 'saveFile');
+      sinon.stub(db, 'addLetterAttachmentId');
+    });
+
+    afterEach(function () {
+      db.saveFile.restore();
+      db.addLetterAttachmentId.restore();
+    });
+
+    it('should save attachment to DB', function(done) {
+      db.saveFile.yields(null, 'ATTACHID');
+      db.addLetterAttachmentId.yields(null, 1);
+
+      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+        expect(err).to.equal(undefined);
+        expect(db.saveFile.callCount).to.equal(1);
+        expect(db.saveFile.args[0][0]).to.equal('CONTENT');
+        return done();
+      });
+    });
+
+    it('should return error if saving file fails', function(done) {
+      db.saveFile.yields('ERRORSAVE');
+      db.addLetterAttachmentId.yields(null, 1);
+
+      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+        expect(err).to.equal('ERRORSAVE');
+        expect(db.saveFile.callCount).to.equal(1);
+        expect(db.addLetterAttachmentId.callCount).to.equal(0);
+        return done();
+      });
+    });
+
+    it('should add attachment id to letter', function(done) {
+      db.saveFile.yields(null, 'ATTACHID');
+      db.addLetterAttachmentId.yields(null, 1);
+
+      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+        expect(err).to.equal(undefined);
+        expect(db.saveFile.callCount).to.equal(1);
+        expect(db.addLetterAttachmentId.callCount).to.equal(1);
+        expect(db.addLetterAttachmentId.args[0][0]).to.equal('LETTERID');
+        expect(db.addLetterAttachmentId.args[0][1]).to.equal('ATTACHID');
+        return done();
+      });
+    });
+
+    it('should return error if adding attachment id to letter failed', function(done) {
+      db.saveFile.yields(null, 'ATTACHID');
+      db.addLetterAttachmentId.yields('ERRORATTACH');
+
+      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+        expect(err).to.equal('ERRORATTACH');
+        return done();
+      });
+    });
+
+    it('should return Not Found error if number of updated letters equals 0', function(done) {
+      db.saveFile.yields(null, 'ATTACHID');
+      db.addLetterAttachmentId.yields(null, 0);
+
+      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+        expect(err.message).to.equal('Not Found');
+        return done();
+      });
+    });
+  });
 });
