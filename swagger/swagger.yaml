@@ -45,6 +45,7 @@ paths:
       - "Letters"
       summary: "Add attachment to an existing letter"
       description: "Accepts Letter ID and file and attaches file to the letter"
+      consumes: ["multipart/form-data"]
       parameters:
       - name: "id"
         in: "path"

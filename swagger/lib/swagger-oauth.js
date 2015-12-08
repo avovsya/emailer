@@ -187,7 +187,7 @@ function initOAuth(opts) {
   popupMask = (o.popupMask||$('#api-common-mask'));
   popupDialog = (o.popupDialog||$('.api-popup-dialog'));
   clientId = (o.clientId||errors.push('missing client id'));
-  clientSecret = (o.clientSecret||null);
+  clientSecret = (o.clientSecret||errors.push('missing client secret'));
   realm = (o.realm||errors.push('missing realm'));
   scopeSeparator = (o.scopeSeparator||' ');
 
@@ -211,15 +211,11 @@ function initOAuth(opts) {
 window.processOAuthCode = function processOAuthCode(data) {
   var params = {
     'client_id': clientId,
+    'client_secret': clientSecret,
     'code': data.code,
     'grant_type': 'authorization_code',
     'redirect_uri': redirect_uri
-  };
-
-  if (clientSecret) {
-    params.client_secret = clientSecret;
   }
-
   $.ajax(
   {
     url : window.swaggerUi.tokenUrl,
@@ -234,7 +230,7 @@ window.processOAuthCode = function processOAuthCode(data) {
       onOAuthComplete("");
     }
   });
-};
+}
 
 window.onOAuthComplete = function onOAuthComplete(token) {
   if(token) {
@@ -291,4 +287,4 @@ window.onOAuthComplete = function onOAuthComplete(token) {
       }
     }
   }
-};
+}
