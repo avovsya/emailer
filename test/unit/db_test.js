@@ -2,13 +2,16 @@ var expect     = require('chai').expect;
 var sinon      = require('sinon');
 var proxyquire = require('proxyquire').noPreserveCache();
 
-var mongodb    = {};
+var mongodb    = {
+  GridStore: function () {}
+};
 var db         = proxyquire('../../lib/db', { mongodb: mongodb });
 var config     = require('config');
 
 describe('db', function () {
   var connectionStub = {};
   var collectionStub = {};
+  var gridStoreOpen, gridStoreWrite, gridStoreClose, gridStoreSeek, gridStoreRead;
 
   beforeEach(function () {
     sinon.stub(config, 'get').withArgs('mongoConnectionString').returns('MONGOCONNSTRING');
@@ -16,17 +19,32 @@ describe('db', function () {
     collectionStub.findOne = sinon.stub().yields();
     collectionStub.insert = sinon.stub().yields();
 
+    gridStoreOpen = sinon.stub();
+    gridStoreWrite = sinon.stub();
+    gridStoreClose = sinon.stub();
+    gridStoreSeek = sinon.stub();
+    gridStoreRead = sinon.stub();
+
     connectionStub.collection = sinon.stub().returns(collectionStub);
 
     mongodb.MongoClient = {
       connect: sinon.stub().yields(null, connectionStub)
     };
 
-    mongodb.ObjectId = function (id) { this.val = id; };
+    sinon.stub(mongodb, 'GridStore', function () {
+      this.open = gridStoreOpen;
+      this.write = gridStoreWrite;
+      this.close = gridStoreClose;
+      this.seek = gridStoreSeek;
+      this.read = gridStoreRead;
+    });
+
+    mongodb.ObjectId = function (id) { this.val = id || 'NEWID'; };
   });
 
   afterEach(function () {
     config.get.restore();
+    mongodb.GridStore.restore();
   });
 
   describe('getLetter', function () {
@@ -79,5 +97,67 @@ describe('db', function () {
         return done();
       });
     });
+  });
+
+  describe('saveFile', function () {
+    it('should create new GridStore passing the new Id for the file', function (done) {
+      gridStoreOpen.yields();
+      gridStoreWrite.yields();
+      gridStoreClose.yields();
+      db.saveFile('CONTENT', function (err, id) {
+        expect(mongodb.GridStore.callCount).to.equal(1);
+        expect(mongodb.GridStore.args[0][0]).to.deep.equal(connectionStub);
+        expect(mongodb.GridStore.args[0][1]).to.deep.equal({val: 'NEWID'});
+        expect(mongodb.GridStore.args[0][2]).to.equal('w');
+        return done();
+      });
+    });
+
+    it('should return new file ID if successfully saved', function (done) {
+      gridStoreOpen.yields();
+      gridStoreWrite.yields();
+      gridStoreClose.yields();
+      db.saveFile('CONTENT', function (err, id) {
+        expect(id).to.deep.equal({val: 'NEWID'});
+        return done();
+      });
+    });
+
+    it('should return error if error occured when GridStore.open', function (done) {
+      gridStoreOpen.yields('ERROROPEN');
+      db.saveFile('CONTENT', function (err, id) {
+        expect(gridStoreOpen.callCount).to.equal(1);
+        expect(gridStoreWrite.callCount).to.equal(0);
+        expect(gridStoreClose.callCount).to.equal(0);
+        expect(err).to.equal('ERROROPEN');
+        return done();
+      });
+    });
+
+    it('should return error if error occured when GridStore.write', function (done) {
+      gridStoreOpen.yields();
+      gridStoreWrite.yields('ERRORWRITE');
+      db.saveFile('CONTENT', function (err, id) {
+        expect(gridStoreOpen.callCount).to.equal(1);
+        expect(gridStoreWrite.callCount).to.equal(1);
+        expect(gridStoreClose.callCount).to.equal(0);
+        expect(err).to.equal('ERRORWRITE');
+        return done();
+      });
+    });
+
+    it('should return error if error occured when GridStore.close', function (done) {
+      gridStoreOpen.yields();
+      gridStoreWrite.yields();
+      gridStoreClose.yields('ERRORCLOSE');
+      db.saveFile('CONTENT', function (err, id) {
+        expect(gridStoreOpen.callCount).to.equal(1);
+        expect(gridStoreWrite.callCount).to.equal(1);
+        expect(gridStoreClose.callCount).to.equal(1);
+        expect(err).to.equal('ERRORCLOSE');
+        return done();
+      });
+    });
+
   });
 });
