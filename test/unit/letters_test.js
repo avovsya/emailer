@@ -54,12 +54,14 @@ describe('lib/letters', function () {
       sinon.stub(senders, 'get');
       sinon.stub(db, 'getLetter');
       sinon.stub(db, 'createLetter');
+      sinon.stub(db, 'getFile');
     });
 
     afterEach(function () {
       senders.get.restore();
       db.getLetter.restore();
       db.createLetter.restore();
+      db.getFile.restore();
     });
 
     it('should send provided letter to the first available sender and return sender name', function (done) {
@@ -133,6 +135,74 @@ describe('lib/letters', function () {
         expect(sender2.send.calledOnce).to.equal(true);
         expect(sender2.send.args[0][0]).to.deep.equal(letter);
         expect(senderName).to.equal('sender2');
+        return done();
+      });
+    });
+
+    it('should send letter including attachments', function (done) {
+      var sender1 = {
+        name: 'sender1',
+        send: sinon.stub().yields()
+      };
+
+      db.getFile.onCall(0).yields(null, 'ATTACHMENT1');
+      db.getFile.onCall(1).yields(null, 'ATTACHMENT2');
+
+      var letter = {
+        to: ['a@example.com', 'b@example.com'],
+        toname: ['A A', 'B B'],
+        from: 'c@example.com',
+        fromname: 'C C',
+        subject: 'SUBJECT',
+        text: 'TEXT',
+        html: '<a>HTML</a>',
+        replyto: 'me@example.com',
+        attachments: ['ATTACHID1', 'ATTACHID2']
+      };
+
+      senders.get.returns([sender1]);
+      db.getLetter.yields(null, letter);
+
+      letters.send('LETTERID', function (err, senderName) {
+        expect(err).to.equal(null);
+
+        expect(db.getFile.callCount).to.equal(2);
+        expect(db.getFile.args[0][0]).to.equal('ATTACHID1');
+        expect(db.getFile.args[1][0]).to.equal('ATTACHID2');
+
+        expect(sender1.send.args[0][0].attachments).to.deep.equal(['ATTACHMENT1', 'ATTACHMENT2']);
+        return done();
+      });
+    });
+
+    it('should return error if getting attachments from db fails', function (done) {
+      var sender1 = {
+        name: 'sender1',
+        send: sinon.stub().yields()
+      };
+
+      db.getFile.onCall(0).yields(null, 'ATTACHMENT1');
+      db.getFile.onCall(1).yields('ERROR');
+
+      var letter = {
+        to: ['a@example.com', 'b@example.com'],
+        toname: ['A A', 'B B'],
+        from: 'c@example.com',
+        fromname: 'C C',
+        subject: 'SUBJECT',
+        text: 'TEXT',
+        html: '<a>HTML</a>',
+        replyto: 'me@example.com',
+        attachments: ['ATTACHID1', 'ATTACHID2']
+      };
+
+      senders.get.returns([sender1]);
+      db.getLetter.yields(null, letter);
+
+      letters.send('LETTERID', function (err, senderName) {
+        expect(err).to.equal('ERROR');
+
+        expect(sender1.send.callCount).to.equal(0);
         return done();
       });
     });
@@ -264,10 +334,11 @@ describe('lib/letters', function () {
       db.saveFile.yields(null, 'ATTACHID');
       db.addLetterAttachmentId.yields(null, {result: {nModified: 1}});
 
-      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+      letters.addAttachment('LETTERID', 'CONTENT', 'FILENAME', function (err, id) {
         expect(err).to.equal(undefined);
         expect(db.saveFile.callCount).to.equal(1);
-        expect(db.saveFile.args[0][0]).to.equal('CONTENT');
+        expect(db.saveFile.args[0][0]).to.equal('FILENAME');
+        expect(db.saveFile.args[0][1]).to.equal('CONTENT');
         return done();
       });
     });
@@ -276,7 +347,7 @@ describe('lib/letters', function () {
       db.saveFile.yields('ERRORSAVE');
       db.addLetterAttachmentId.yields(null, {result: {nModified: 1}});
 
-      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+      letters.addAttachment('LETTERID', 'CONTENT', 'FILENAME', function (err, id) {
         expect(err).to.equal('ERRORSAVE');
         expect(db.saveFile.callCount).to.equal(1);
         expect(db.addLetterAttachmentId.callCount).to.equal(0);
@@ -285,15 +356,15 @@ describe('lib/letters', function () {
     });
 
     it('should add attachment id to letter', function(done) {
-      db.saveFile.yields(null, 'ATTACHID');
+      db.saveFile.yields(null, 'FILENAME');
       db.addLetterAttachmentId.yields(null, {result: {nModified: 1}});
 
-      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+      letters.addAttachment('LETTERID', 'CONTENT', 'FILENAME', function (err, id) {
         expect(err).to.equal(undefined);
         expect(db.saveFile.callCount).to.equal(1);
         expect(db.addLetterAttachmentId.callCount).to.equal(1);
         expect(db.addLetterAttachmentId.args[0][0]).to.equal('LETTERID');
-        expect(db.addLetterAttachmentId.args[0][1]).to.equal('ATTACHID');
+        expect(db.addLetterAttachmentId.args[0][1]).to.equal('FILENAME');
         return done();
       });
     });
@@ -302,7 +373,7 @@ describe('lib/letters', function () {
       db.saveFile.yields(null, 'ATTACHID');
       db.addLetterAttachmentId.yields('ERRORATTACH');
 
-      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+      letters.addAttachment('LETTERID', 'CONTENT', 'FILENAME', function (err, id) {
         expect(err).to.equal('ERRORATTACH');
         return done();
       });
@@ -312,7 +383,7 @@ describe('lib/letters', function () {
       db.saveFile.yields(null, 'ATTACHID');
       db.addLetterAttachmentId.yields(null, {result: {nModified: 0}});
 
-      letters.addAttachment('LETTERID', 'CONTENT', function (err, id) {
+      letters.addAttachment('LETTERID', 'CONTENT', 'FILENAME', function (err, id) {
         expect(err.message).to.equal('Not Found');
         return done();
       });

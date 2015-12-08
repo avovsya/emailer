@@ -126,10 +126,10 @@ describe('db', function () {
       gridStoreOpen.yields();
       gridStoreWrite.yields();
       gridStoreClose.yields();
-      db.saveFile('CONTENT', function (err, id) {
+      db.saveFile('NAME', 'CONTENT', function (err, id) {
         expect(mongodb.GridStore.callCount).to.equal(1);
         expect(mongodb.GridStore.args[0][0]).to.deep.equal(connectionStub);
-        expect(mongodb.GridStore.args[0][1]).to.deep.equal({val: 'NEWID'});
+        expect(mongodb.GridStore.args[0][1]).to.deep.equal('NAME');
         expect(mongodb.GridStore.args[0][2]).to.equal('w');
         return done();
       });
@@ -139,15 +139,15 @@ describe('db', function () {
       gridStoreOpen.yields();
       gridStoreWrite.yields();
       gridStoreClose.yields();
-      db.saveFile('CONTENT', function (err, id) {
-        expect(id).to.deep.equal({val: 'NEWID'});
+      db.saveFile('NAME', 'CONTENT', function (err, id) {
+        expect(id).to.deep.equal('NAME');
         return done();
       });
     });
 
     it('should return error if error occured when GridStore.open', function (done) {
       gridStoreOpen.yields('ERROROPEN');
-      db.saveFile('CONTENT', function (err, id) {
+      db.saveFile('NAME', 'CONTENT', function (err, id) {
         expect(gridStoreOpen.callCount).to.equal(1);
         expect(gridStoreWrite.callCount).to.equal(0);
         expect(gridStoreClose.callCount).to.equal(0);
@@ -159,7 +159,7 @@ describe('db', function () {
     it('should return error if error occured when GridStore.write', function (done) {
       gridStoreOpen.yields();
       gridStoreWrite.yields('ERRORWRITE');
-      db.saveFile('CONTENT', function (err, id) {
+      db.saveFile('NAME', 'CONTENT', function (err, id) {
         expect(gridStoreOpen.callCount).to.equal(1);
         expect(gridStoreWrite.callCount).to.equal(1);
         expect(gridStoreClose.callCount).to.equal(0);
@@ -172,7 +172,7 @@ describe('db', function () {
       gridStoreOpen.yields();
       gridStoreWrite.yields();
       gridStoreClose.yields('ERRORCLOSE');
-      db.saveFile('CONTENT', function (err, id) {
+      db.saveFile('NAME', 'CONTENT', function (err, id) {
         expect(gridStoreOpen.callCount).to.equal(1);
         expect(gridStoreWrite.callCount).to.equal(1);
         expect(err).to.equal('ERRORCLOSE');

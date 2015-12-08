@@ -35,7 +35,7 @@ function addAttachment(req, res, next) {
     res.status(400);
     return res.json({success: false, error: 'File not attached'});
   }
-  letters.addAttachment(req.params.id, req.file.buffer, function (err) {
+  letters.addAttachment(req.params.id, req.file.buffer, req.file.originalname, function (err) {
     if (err) {
       if (err.message && err.message === 'Not Found') {
         res.status(404);
