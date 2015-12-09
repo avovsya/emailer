@@ -10,7 +10,7 @@ function create(req, res, next) {
 
       return next(err);
     }
-    return res.json({id: id});
+    return res.json({success: true, id: id});
   });
 }
 

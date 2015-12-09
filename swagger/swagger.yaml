@@ -44,7 +44,7 @@ paths:
       tags:
       - "Letters"
       summary: "Add attachment to an existing letter"
-      description: "Accepts Letter ID and file and attaches file to the letter"
+      description: "Accepts Letter ID and file, attaches file to the letter"
       consumes: ["multipart/form-data"]
       parameters:
       - name: "id"
@@ -61,13 +61,11 @@ paths:
         200:
           description: "Object with status"
           schema:
-            $ref: "#/definitions/inline_response_200"
+            $ref: "#/definitions/inline_response_200_simple"
         404:
           description: "Letter ID not found"
-        403:
-          description: "File not included"
-        503:
-          description: "Error occured. Try later"
+        400:
+          description: "File not attached"
         default:
           description: "Unexpected error"
           schema:
@@ -111,46 +109,69 @@ definitions:
         items:
           type: "string"
           format: "email"
+        default: ["receiver@example.com"]
       toname:
         type: "array"
         description: "Array of the recipient names"
         items:
           type: "string"
+        default: ["Receiver"]
       from:
         description: "Sender email address"
         type: "string"
         format: "email"
+        default: "sender@example.com"
       fromname:
         description: "Sender name"
         type: "string"
+        default: "Sender"
       subject:
         description: "Letter subject"
         type: "string"
+        default: "Subject"
       text:
         description: "Letter text"
         type: "string"
+        default: "Text"
       html:
         description: "Letter html"
         type: "string"
+        default: "<a>HTML</a>"
       replyto:
         description: "Reply-To email header"
         type: "string"
         format: "email"
+        default: "sender@example.com"
   Error:
     type: "object"
     properties:
+      success:
+        type: "boolean"
+        default: false
       error:
         type: "object"
         properties: {}
       message:
         type: "string"
+  inline_response_200_simple:
+    properties:
+      success:
+        type: "boolean"
+        description: "Status of the send request"
   inline_response_200:
     properties:
       id:
         type: "string"
         description: "Letter ID"
+      success:
+        type: "boolean"
+        description: "Status of the send request"
   inline_response_400:
     properties:
+      success:
+        type: "boolean"
+        description: "Status"
+        default: false
       error:
         type: "object"
         description: "Validation error description"

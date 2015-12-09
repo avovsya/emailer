@@ -37,7 +37,7 @@ describe('routes/letters', function () {
       expect(lettersLib.create.callCount).to.equal(1);
       expect(lettersLib.create.args[0][0]).to.equal('LETTER');
       expect(res.json.callCount).to.equal(1);
-      expect(res.json.args[0][0]).to.deep.equal({id: 'ID'});
+      expect(res.json.args[0][0]).to.deep.equal({id: 'ID', success: true});
     });
 
     it('should return error in JSON', function () {
