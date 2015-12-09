@@ -1,48 +1,63 @@
-# Emailer
-Simple send email service
+# EMAILER
+Simple send email service.
+
+Demo - [emailer-challenge.herokuapp.com](http://emailer-challenge.herokuapp.com/swagger/index.html)
+
+# DESCRIPTION
+This service allows to send transactional emails using either Mandrill or Sendgrid, providing automatic failover from one to another. Also service can be easily extended to use more transactional email services.
+
+Service exposes REST API. API documentation can be found  [here](http://emailer-challenge.herokuapp.com/swagger/index.html)
+
+## API Workflow
+To support JSON as a data format of choice, with ability to send attachments and ability to use API from browser, operation of sending email, was divided to 3 steps:
+1. Creating letter (JSON)
+2. Adding attachments (MULTIPART)
+3. Sending letter (JSON)
+
+First step will create letter and return it's ID, second allows to add files to that letter and the third step will actually send letter with one of the available transactional email services.
 
 ## Documentation
-API documentation is done using swagger.io
-
-API docs can be found in [http://emailer-challenge.herokuapp.com/swagger/index.html](http://emailer-challenge.herokuapp.com/swagger/index.html)
+Full API docs are provided using Swagger UI -  [http://emailer-challenge.herokuapp.com/swagger/index.html](http://emailer-challenge.herokuapp.com/swagger/index.html).
+Also Swagger provides advanced UI for executing API calls(API frontend)
 
 If running locally docs can be found in [http://localhost:{PORT}/swagger/index.html](http://localhost:3000/swagger/index.html) 
-
+# RUNNING
 ## Running locally
-Install dependencies with `npm install`
-
-Provide configuration in config/development.json
-
-Set NODE_ENV environment variable to 'development'
-
-Then start application with `npm start`
-
+* Install dependencies with `npm install`
+* Provide configuration in config/development.json
+* Set NODE_ENV environment variable to 'development'
+* Then start application with `npm start`
 
 ## Running tests
-Provide configuration in config/test.json
+* Provide configuration in config/test.json
+* Install dependencies with `npm install`
+* Unit tests and coverage: `npm run test-unit`
+* Smoke API tests: `npm run test-smoke`
+* All tests: `npm test`
 
-Install dependencies with `npm install`
+# CONFIGURATION
+Configuration is stored in `config/` folder using .json files. `config/default.json` provided as an example
 
-Unit tests: `npm run test-unit`
+## Warning!
+File `config/custom-environment-variables.json` provides a binding from environment variables to an application config.
+So if you system has one of the following environment variables: **MANDRILL_KEY**, **SENDGRID_KEY** or **MONGOLAB_URI** they will be used instead of whatever other configuration will be put to `config/` folder. **BE CAREFULL**
 
-Smoke API tests: `npm run test-smoke`
-
-All tests: `npm test`
-
-
-## Configuration
-Configuration is stored in config/ folder using .json files.
-config/default.json provided as an example
-
-For deploying on Heroku it's more convenient to store configuration in
-environment variables but in that case there is no single place to see
-all available configuration options. Except of documentation of course,
-but there is no guarantee that it always will be up to date.
-
-### Required configuration
+## Required configuration
 * mongoConnectionString - uri to MongoDB instance
 * mandrillApiKey - Mandrill API key
 * sendgridApiKey - Sendgrid API key
 
-### Environment variables
+## Environment variables
 * PORT - port on which to run service
+
+# TECH STACK
+* Node.js
+* Express.js as a http framework
+* Input validation using Hapi Joi library
+* MongoDB + Node.js mongodb-native driver for storing letters before sending them
+* MongoDB GridFS for storing letter attachments
+* Mocha, Chai.js, Sinon for unit testing
+* Istanbul for code coverage
+* Mocha, Supertest for API tests
+* Swagger UI for API documentation and frontend
+* Hosted on Heroku
