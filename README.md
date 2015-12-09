@@ -22,7 +22,7 @@ Full API docs are provided using Swagger UI -  [http://emailer-challenge.herokua
 Also Swagger provides advanced UI for executing API calls(API frontend)
 
 If running locally docs can be found in [http://localhost:{PORT}/swagger/index.html](http://localhost:3000/swagger/index.html) 
-# RUNNING
+# RUN
 ## Running locally
 * Install dependencies with `npm install`
 * Provide configuration in config/development.json
