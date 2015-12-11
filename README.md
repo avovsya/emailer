@@ -1,12 +1,24 @@
-# EMAILER
-Simple send email service.
+# LINKS
+
+My linkedin profie - [https://www.linkedin.com/in/avovsya]https://www.linkedin.com/in/avovsya)
 
 Demo - [emailer-challenge.herokuapp.com](http://emailer-challenge.herokuapp.com/swagger/index.html)
+
+# EMAILER
+Simple send email service. Back-end implementation
 
 # DESCRIPTION
 This service allows to send emails using either Mandrill or Sendgrid, providing automatic failover from one to another. Also service can be easily extended to use more email providers.
 
 Service exposes REST API. API documentation can be found  [here](http://emailer-challenge.herokuapp.com/swagger/index.html)
+
+## Implementation shortcomings
+I was so consumed by providing abstraction to different email services and testing, that forgot about one of the requirements - "failover to a different provider without affecting your customers". My implementation does failover but this can affect customers, because code just tries next email provider when current returns error. This can cause delays before we send response to user.
+
+#### The correct solution 
+Whenever user sends message, queue "send event" and return success to user.
+Separate "sender" process consumes event from the queue and tries to send it. If send failed it can try different email provider itself or return event back to the queue, for latter processing by the different sender.
+There are multiple choices of available queues(RabbitMQ, SQL, etc). Sender process can be just another Node.js application that consumes the queue and does what `lib/letter.js send` does in my solution.
 
 ## API Workflow
 To support JSON as a data format of choice, with ability to send attachments and ability to use API from browser, operation of sending email was divided to 3 steps:
@@ -16,6 +28,11 @@ To support JSON as a data format of choice, with ability to send attachments and
 3. Sending letter (JSON)
 
 First step will create letter and return it's ID, second allows to add files to that letter and the third step will actually send letter with one of the available email providers.
+
+This allows to use JSON for email data along with multipart HTTP requests for attachments.
+If I would do this in just one API call then the one of the following trade-offs will be made: 
+1. Using form data as a format for sending email parameters. This will allow to send email parameters and file attachments in one multipart request. Convenient to use from browser but not very convenient to use from other services.
+2. Using JSON inside multipart requests. In this case API will not be usable from browser JS code.
 
 ## Documentation
 Full API docs are provided using Swagger UI -  [http://emailer-challenge.herokuapp.com/swagger/index.html](http://emailer-challenge.herokuapp.com/swagger/index.html).
