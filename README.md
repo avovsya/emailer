@@ -1,6 +1,6 @@
 # LINKS
 
-My linkedin profie - [https://www.linkedin.com/in/avovsya]https://www.linkedin.com/in/avovsya)
+My linkedin profie - [https://www.linkedin.com/in/avovsya](https://www.linkedin.com/in/avovsya)
 
 Demo - [emailer-challenge.herokuapp.com](http://emailer-challenge.herokuapp.com/swagger/index.html)
 
